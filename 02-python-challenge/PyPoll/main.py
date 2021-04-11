@@ -2,39 +2,55 @@
 import os
 import csv
 
-# set the path for collecting the ellection data
-election_csv = os.path.join('Resources', 'election_data.csv')
+# define function to analyze election data
+def main():
+    #  set the path for collecting the election data
+    csv_read = os.path.join('Resources', 'election_data.csv') 
+    csv_write = os.path.join('Analysis', 'Election_Analysis.txt')
+    # initialize variables
+    total_votes = 0
+    winner = None
+    # dictionary for candidates and count of votes
+    candidate_votes = {}
 
-# access and read the election data file
-with open(election_csv, newline='') as csvfile:
-    csv_reader = csv.reader(csvfile, delimiter=',')
+    # read csv
+    with open(csv_read, newline='') as f:
+        reader = csv.reader(f, delimiter=',')
+        # skip header
+        csv_header = next(f, None)
+        for row in reader:
+            total_votes += 1
+            candidate = row[2]
+            if candidate not in candidate_votes.keys():
+                candidate_votes[candidate] = 1
+            else:
+                candidate_votes[candidate] += 1
+    output = (
+        f"Election Results\n"
+        f"----------------------\n"
+        f"Total Votes\n"
+        f"----------------------\n"
+    )
 
+    max_votes = float('-inf')   # this sets a lower bound for votes cast
+    for candidate, votes in candidate_votes.items():
+        votes_percent = votes / total_votes * 100
+        output = output + f'{candidate}: {votes_percent:.3f}% ({votes})\n'
 
-# TASKS
-# 1. The total number of votes cast
-    for row in csv_reader:
-        total_votes_cast = sum(1 for row in csv_reader)
-        print(total_votes_cast)
+        if votes > max_votes:
+            winner = candidate
 
+        max_votes = votes
 
-# 2. A complete list of candidates who received votes
-    complete_list = []
-    for row in csv_reader:
-        if row[2] not in complete_list:
-            complete_list.append(row[2])
+    output = output +  (f'----------------------\n'
+                        f'Winner: {winner}\n'
+                        f'----------------------\n'
+    )
 
-    print(complete_list)
-    names =[]
-    for i in csv_reader:
-        names.append(i['Candidate'])
-    print(list(set(names)))
+    print(output)
 
-# 3. The percentage of votes each candidate won
+    with open(csv_write, 'w') as f:
+        f.write(output)
 
-
-
-# 4. The total number of votes each candidate won
-
-
-# 5. The winner of the election based on popular vote.
-
+if __name__ == '__main__':
+    main()
